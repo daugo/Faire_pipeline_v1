@@ -1,0 +1,23 @@
+#YAML
+#GOAnnotation_options.yml
+
+#DO NOT CHANGE THE TAGS OF THIS FILE.
+---
+GOAnnotation_file : "Annotation_Files/ATH_GO_GOSLIM.txt"
+#For each field of this category specified the number of the column (1 to n) that contain the specific information if no available just fill the space with '~'
+columns_info_order: 
+  locus_name : "1" #gene_id (MANDATORY)
+  db_specific_id : "2" #unique identifier for an object in the specific database (OPTIONAL)
+  object_name : "3"  #the name of the object (gene, protein, locus) being annotated (OPTIONAL) 
+  relationship_type : "4" #the relationship between the annotated object and the GO term (OPTIONAL)
+  GO_term : "5" #the actual string of letters corresponding to the GO ID (OPTIONAL)
+  GO_ID : "6" #the unique identifier for a GO term (MANDATORY)
+  keyword_ID : "7" #the unique identifier for a keyword (OPTIONAL)
+  aspect_ID : "8" #F=molecular function, C=cellular component, P=biological processes (MANDATORY)
+  GOslim_term : "9" #high level GO term helps in functional categorization (OPTIONAL)
+  evidence_code : "10" #three letter code for evidence types (see: http://www.geneontology.org/GO.evidence.html) (OPTIONAL)
+  evidence_description : "11" #the analysis that was done to support the annotation (OPTIONAL)
+  evidence_with : "12" #supporting evidence for IGI, IPI, IC, IEA and ISS annotations (OPTIONAL)
+  reference : "13" #Reference ID (OPTIONAL)
+  annotator : "14" #who is responsible from the annotation (OPTIONAL)
+  date_annotated : "15" #date the annotation was made (OPTIONAL)

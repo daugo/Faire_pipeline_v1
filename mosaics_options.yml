@@ -1,0 +1,28 @@
+#YAML
+#mosaics_options.pl
+---
+input:
+  treatment:
+  control:
+output:
+construct_bin_parameters:
+  fragment_length: "300"
+  bin_size: "50"
+  capping: "0"
+bin_files:
+  mappability_file:
+  gc_file: 
+  n_file:
+analysis:
+  data_type: "OS"
+  desired_fdr: "0.05"
+  maxgap: "1000"
+  minsize: "50"
+  thr_score: "100"
+other_parameters:
+  data_type: "unique"
+  parallel_flag: check
+  cores: "3"
+
+
+

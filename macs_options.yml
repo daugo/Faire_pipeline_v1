@@ -1,0 +1,64 @@
+#YAML
+#macs_options.yml
+---
+input: 
+  #treatment files (Mandatory)
+  treatment: "../Pipeline_v1/FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bed"
+  #control files (optional)
+  control: ~ 
+  #Keep this format if you're using the whole pipeline (optional). DEFAULT-> AUTO.
+  format: "BED"
+output: 
+  #output basename (optional). DEFAULT-> NA.
+  output_name: ~ 
+  #Whether or not to save extended fragment pileup at every WIGEXTEND bps into a wiggle file. WARNING-> this process is time/space consuming!!. DEFAULT-> False
+  wig: ~ 
+  #Whether or not to save extended fragment pileup at every bp into a bedGraph file. DEFAULT-> False
+  bed_graph: ~ 
+  #When set, a single wiggle file will be saved for treatment and input. DEFAULT-> False
+  single_profile: ~ 
+common_options:
+  #Best distance between Pair-End Tags. Only available when format is 'ELANDMULTIPET'.
+  petdist: ~ 
+  #Effective genome size. Default:hs (human genome size)
+  gsize: 157e6 
+  #Tag size. This will overide the auto detected tag
+  tag_size: ~ 
+  #Band width. This value is only used while building the shifting model. DEFAULT-> 300
+  band_width: ~ 
+  #Pvalue cutoff for peak detection. DEFAULT-> 1e-5
+  p_value: ~ 
+  #Select the regions within MFOLD range of high-confidence enrichment ratio against background to build model. The regions must be lower than upper limit, and higher than the lower limit. DEFAULT->10,30.
+  m_fold: ~ 
+more_model_options:
+  #If True, MACS will use fixed background lambda as local lambda for every peak region.
+  nolambda: ~
+  #The small nearby region in basepairs to calculate dynamic lambda. DEFAULT-> 1000 
+  s_local: ~ 
+  #The large nearby region in basepairs to calculate dynamic lambda. DEFAULT-> 10000
+  l_local: ~ 
+  #Whether turn off the auto pair model process. DEFAULT-> False
+  off_auto: ~ 
+  #Whether or not to build the shifting model. DEFAULT-> False
+  no_model: ~ 
+  #The arbitrary shift size in bp. When nomodel is true. DEFAULT-> False
+  shift_size: ~
+aditional_options:
+  #It controls the MACS behavior towards duplicate tags at the exact same location-> VALUES-> auto or all.
+  keep_duplicates: ~ 
+  #When set, scale the larger dataset down to the smaller dataset. DEFAULT-> False
+  to_small: ~
+  #The resolution (in bps) for saving wiggle files. DEFAULT-> 10
+  space_wig: ~ 
+  #Invoke PeakSpliter DEFAULT-> False (Not supported in the pipeline)
+  call_subpeaks: ~ 
+  #Whether or not to produce a diagnosis report. It's up to 9X time consuming. DEFAULT-> False
+  diag: ~ 
+  #For diagnostics, min fold enrichment to consider. DEFAULT-> 0
+  fe_min: ~ 
+  #For diagnostics, max fold enrichment to consider. DEFAULT-> maximum fold enrichment
+  fe_max: ~ 
+  #For diagnostics, For diagnostics, fold enrichment step. DEFAULT-> 20
+  fe_step: ~ 
+
+

@@ -1,0 +1,15 @@
+#YAML
+#BED_files options
+#TODO: change this names : temporary fields in order to get along with get_summits.pl
+---
+fasta_file : "Genomes/TAIR10/TAIR_10.fasta"
+gff3_file : "Annotation_Files/TAIR10_GFF3_genes.gff"
+bam_file_path : "~/Documents/FAIRE_Arab_April/mapping/FAIRE-3-AT-A-th_ACAGTG_L003_vs_nuclear_n3_sorted_just_mapped.bam"
+filter_score_more_than:
+  CSAR_n3_score20: ~
+  MACS_n3_peaks: ~
+  MOSAICS_n3: ~
+filter_size_limit : "100,10000"
+shuffle_tries : "10"
+promoters_distance : "250"
+
