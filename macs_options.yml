@@ -3,14 +3,14 @@
 ---
 input: 
   #treatment files (Mandatory)
-  treatment: "../Pipeline_v1/FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bed"
+  treatment: FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bed
   #control files (optional)
-  control: ~ 
+  control: FAIRE-WT-A-th_GCCAAT_L004_nuclear_sorted.bed
   #Keep this format if you're using the whole pipeline (optional). DEFAULT-> AUTO.
   format: "BED"
 output: 
   #output basename (optional). DEFAULT-> NA.
-  output_name: ~ 
+  output_name: "FAIRE-Arab" 
   #Whether or not to save extended fragment pileup at every WIGEXTEND bps into a wiggle file. WARNING-> this process is time/space consuming!!. DEFAULT-> False
   wig: ~ 
   #Whether or not to save extended fragment pileup at every bp into a bedGraph file. DEFAULT-> False
@@ -22,7 +22,7 @@ common_options:
   petdist: ~ 
   #Effective genome size. Default:hs (human genome size)
   gsize: 157e6 
-  #Tag size. This will overide the auto detected tag
+  #Tag size. If a value is provide, it will overide the auto detected tag
   tag_size: ~ 
   #Band width. This value is only used while building the shifting model. DEFAULT-> 300
   band_width: ~ 

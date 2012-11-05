@@ -8,6 +8,8 @@ use Data::Dumper;
 use change_format_fork;
 #my @files;
 
+use macs_job;
+use csar_job;
 
 #fill @files using yaml file
 my $config_file = YAML::Tiny->new;
@@ -259,7 +261,76 @@ print "Data format sam -> bed starts...\n";
 change_format_fork::sam2bed_fork($erase_sam_files_flag,@samfiles);
 print "Data format sam -> bed ends...\n";
 
+print Dumper %nuclearBowtie_CorT;
+
+#=========Specified input files for peak_callers======================================
+
+my @peak_caller_ymls;
+foreach my $program_yml_tag (keys %{$config_file->[0]->{'peak_callers'}}) {
+
+	my $program_config_file = $config_file->[0]->{'peak_callers'}->{"$program_yml_tag"};
+	
+	open YML_OUT,'>',$program_config_file.".mod" or die "Cannot write config mod file\n";
+
+	open YML,'<',$program_config_file or die "Cannot open config file $program_config_file\n";
+	push (@peak_caller_ymls,$program_config_file);
+
+	while (<YML>) {
+		chomp;
+		my $line = $_;
+		foreach my $nuclear_bowtie_yml (keys %nuclearBowtie_CorT) {
+			#print "HERE:$nuclear_bowtie_yml\t$nuclearBowtie_CorT{$nuclear_bowtie_yml}\n";
+			my $bowtie_build_config_file = YAML::Tiny->read($nuclear_bowtie_yml);
+			my $out_bowtie_basemane = $bowtie_build_config_file->[0]->{'0_General_system'}->{'sys'}->[5]->{'outfile_base_name'};
+			my $bed_file = $out_bowtie_basemane."_sorted.bed";
+			my $bam_file = $out_bowtie_basemane."_sorted.bam";
+
+			if ($nuclearBowtie_CorT{$nuclear_bowtie_yml} =~ /treatment/i) {
+				if ($line =~ /^\s+treatment:/) {
+					print "T_SUCCES\t$line\n";
+					if ($program_yml_tag ~~ /csar_config_file/) {
+						$line =~ s/(treatment:).+$/$1 $bam_file/;
+					} 
+					else {
+						$line =~ s/(treatment:).+$/$1 $bed_file/;
+					}
+					print "$line\n";
+				}
+			}
+			elsif ($nuclearBowtie_CorT{$nuclear_bowtie_yml} =~ /control/i) {
+				if ($line =~ /^\s+control:/) {
+					print "C_SUCCES\t$line\n";
+					if ($program_yml_tag ~~ /csar_config_file/) {
+						$line =~ s/(control:).+$/control: $bam_file/;
+					}
+					else {
+						$line =~ s/(control:).+$/control: $bed_file/;
+					}
+					print "$line\n";
+				}
+			}
+			
+		}
+		print YML_OUT $line."\n";
+
+	}
+	close YML;
+	close YML_OUT;
+}
+
+foreach my $peak_caller_name (@peak_caller_ymls) {
+	unlink $peak_caller_name or warn "Cannot erase peak-caller config file : $peak_caller_name: $!";
+	rename ($peak_caller_name.'.mod',$peak_caller_name) or warn "Cannot rename $peak_caller_name.mod: $!";
+}
+#===================================================================================
 
 
+my $macs_peaks_bed_fl = macs_job::Macs_Job($config_file->[0]->{'peak_callers'}->{'macs_config_file'});
+print "PEAKS_FILES:($macs_peaks_bed_fl)";
+#my $csar_peaks_bed_fl = csar_job::Csar_Job($config_file->[0]->{'peak_callers'}->{'csar_config_file'});
+#TODO: Mappability.pl integration
+!system "perl MOSAICS.pl $config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannort execute MOSAICS.pl: $!";
+
+#print "PEAKS_FILES:($macs_peaks_bed_fl,$csar_peaks_bed_fl)\n";
 
 

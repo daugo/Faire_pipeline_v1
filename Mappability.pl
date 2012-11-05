@@ -3,6 +3,7 @@
 use warnings;
 use strict;
 use File::Basename;
+use YAML::Tiny;
 use File::Copy;
 use Bio::SeqIO;
 
@@ -12,10 +13,10 @@ my $config_file = YAML::Tiny->new;
 $config_file= YAML::Tiny->read($mappability_yml_file) or die "Cannot read config file: $!\n";
 
 
-my $fasta_file_path = $config_file->[0]->{'genome_fasta'};
-my $avg_read_length = $config_file->[0]->{'avg_read_length'};
-my $frag_len = $config_file->[0]->{'frag_len:'};
-my $bin_size = $config_file->[0]->{'bin_sizes'};
+my $fasta_file_path = $config_file->[1]->{'genome_fasta'};
+my $avg_read_length = $config_file->[1]->{'avg_read_length'};
+my $frag_len = $config_file->[0]->{'construct_bin_parameters'}->{'fragment_length'};
+my $bin_size = $config_file->[0]->{'construct_bin_parameters'}->{'bin_size'};
 
 #===========
 
@@ -89,7 +90,9 @@ chdir 'mappability_files' or die "Cannot chdir to mappability_files: $!";
 
 #process mappability files using mosaics scripts for preprocessing and at the end obtain a bin file
 foreach (@Seq_IDs) {
-	my ($chr_id)= /[^0-9]+([0-9]+$)/;
+	#Problem with the script that MOSAICS page proivide do the job for genomes with sequences names are Chr
+	#TODO: improve scripts from MOSAIC page
+	my ($chr_id)= /[^0-9]+([0-9]+$)/i; #TODO : Include a more general approach to include. here we don't  include support to Choloplast (c) and mitochondrion (m)
 	!system ("python cal_binary_map_score.py $chr_id 1 $ID_length{$_} > $_\_map_binary.txt") or die "cal_binary_map_score fails: $!"; 
 	!system ("perl process_score_java.pl $_\_map_binary.txt $chr_id\_map $avg_read_length $frag_len $bin_size") or die "Preprocess mappability binary files to bin-level files fail : $!";
 }
@@ -103,7 +106,7 @@ foreach (@fa_files) {
 chdir 'mappability_files' or die "Cannot chdir :$!";
 
 foreach (@Seq_IDs) {
-	my ($chr_id)= /[^0-9]+([0-9]+$)/;
+	my ($chr_id)= /[^0-9]+([0-9]+$)/i;
 	!system "perl cal_binary_GC_N_score.pl $_.fa $chr_id 1" or die "cal_binary_GC_N_score.pl fails :$!";
 	!system "perl process_score.pl $_\_GC_binary.txt $chr_id\_GC $frag_len $bin_size" or die "process_score.pl fails for GC: $!";
 	!system "perl process_score.pl $_\_N_binary.txt $chr_id\_N $frag_len $bin_size" or die "process_score.pl for N fails : $!";

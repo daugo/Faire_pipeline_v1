@@ -5,26 +5,48 @@
 ---
 fasta_file_path : "TAIR10_nuclear.fasta" #Genome fasta path for extract the sequences.
 Distances:
-  up_interest_distance : "250" #Peaks that are annotated to a up_distance of less than X are going to be taken into account (Mandatory)
-  down_interest_distance : "-250" #Peaks that are annotated to a down_distance of more than X are going to be taken into account (Mandatory)
-reference_feature : "TSS" #The selection criteria use the Peak Annotation information based on TSS locations (Mandatory: possible values 'TSS' and 'SC')
-flanking_size : "100" #Define the size of the sequence flanking the summit of selected peak by +/- X bp (Mandatory)
-promoters_distance : "250" #Define the size of the background sequences flanking by +/- X bp the reference sequence  (Mandatory)
-meme_path : "/meme/bin" #path where meme-chip binaries are found (Mandatory, if is not in the $PATH)
+  #Peaks that are annotated to a up_distance of less than X are going to be taken into account (Mandatory)
+  up_interest_distance : "250" 
+   #Peaks that are annotated to a down_distance of more than X are going to be taken into account (Mandatory)
+  down_interest_distance : "-250"
+
+#The selection criteria use the Peak Annotation information based on TSS locations (Mandatory: possible values 'TSS' and 'SC')
+reference_feature : "TSS"
+#Define the size of the sequence flanking the summit of selected peak by +/- X bp (Mandatory) 
+flanking_size : "100" 
+#Define the size of the background sequences flanking by +/- X bp the reference sequence  (Mandatory)
+promoters_distance : "250" 
+#path where meme-chip binaries are found (Mandatory, if is not in the $PATH)
+meme_path : "/meme/bin" 
 
 Meme_Chip :
-	db_jaspar : "jaspar_plant/jaspar_plant_nonredundant.meme" #target database for use by TOMTOM and AME, if not present then TOMTOM and AME are not run (optional)
-	nmeme : "5000" #limit of sequences to pass to MEME (optional)
-	ccut : "200" #maximum size of a sequence before it is cut down (optional)
-	run_mast : "check" #run MAST - motif alignment & search tool (optional)
-	run_ama : "check" #run AMA - Average motif affinity (optional)
-	meme_mod : "anr" #sites used in a single sequence (optional)
-	meme_minw : ~ #minimum motif width (optional)
-	meme_maxw : ~ #maximum motif width (optional)
-	meme_nmotifs : "10" #maximum number of motifs to find (optional)
-	meme_minsites : ~ #minimum number of sites per motif (optional)
-	meme_maxsites : ~ #maximum number of sites per motif (optional)
-	meme_time : ~ #maximum time to run MEME in seconds (optional)
-	meme_p : ~ #use parallel version with <np> processors (optional)
-	meme_norevcomp : ~ #search given strand only (optional)
-	meme_pal : ~ #look for palindromes only (optional)
+  #target database for use by TOMTOM and AME, if not present then TOMTOM and AME are not run (optional)
+  db_jaspar : "jaspar_plant/jaspar_plant_nonredundant.meme" 
+  #limit of sequences to pass to MEME (optional)
+  nmeme : "5000" 
+  #maximum size of a sequence before it is cut down (optional)
+  ccut : "200" 
+  #run MAST - motif alignment & search tool (optional)
+  run_mast : "check" 
+  #run AMA - Average motif affinity (optional)
+  run_ama : "check" 
+  #sites used in a single sequence (optional)
+  meme_mod : "anr" 
+  #minimum motif width (optional)
+  meme_minw : ~ 
+  #maximum motif width (optional)
+  meme_maxw : ~ 
+   #maximum number of motifs to find (optional)
+  meme_nmotifs : "10"
+  #minimum number of sites per motif (optional)
+  meme_minsites : ~ 
+  #maximum number of sites per motif (optional)
+  meme_maxsites : ~ 
+   #maximum time to run MEME in seconds (optional)
+  meme_time : ~
+  #use parallel version with <np> processors (optional)
+  meme_p : ~ 
+  #search given strand only (optional)
+  meme_norevcomp : ~ 
+  #look for palindromes only (optional)
+  meme_pal : ~ 

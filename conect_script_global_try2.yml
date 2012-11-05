@@ -22,7 +22,8 @@ bowtie-nuclear:
 format-change-processing:
   - erase_intermediate_mapped_files : check
   #remove sam mapping files, keeping just the bam_sorted and bed files
-  - erase_sam_files : check 
-
-
-
+  - erase_sam_files : check
+peak_callers:
+  macs_config_file: macs_options.yml
+  csar_config_file: csar_options.yml
+  mosaics_config_file: mosaics_options.yml

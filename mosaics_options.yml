@@ -2,19 +2,20 @@
 #mosaics_options.pl
 ---
 input:
-  treatment:
-  control:
-output:
+   #treatment files (Mandatory)
+  treatment: FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bed
+  #control files (optional)
+  control: FAIRE-WT-A-th_GCCAAT_L004_nuclear_sorted.bed
 construct_bin_parameters:
   fragment_length: "300"
   bin_size: "50"
   capping: "0"
 bin_files:
-  mappability_file:
-  gc_file: 
-  n_file:
+  mappability_file: "Mappability_try/MOSAICS_REQUIRE_FILES/whole_map_fragL300_bin50.txt"
+  gc_file: "Mappability_try/MOSAICS_REQUIRE_FILES/whole_GC_fragL300_bin50.txt"
+  n_file: "Mappability_try/MOSAICS_REQUIRE_FILES/whole_N_fragL300_bin50.txt"
 analysis:
-  data_type: "OS"
+  analysis_type: "OS"
   desired_fdr: "0.05"
   maxgap: "1000"
   minsize: "50"
@@ -23,6 +24,12 @@ other_parameters:
   data_type: "unique"
   parallel_flag: check
   cores: "3"
+---
+#Aditional parameters to generate Mappability and GC files files
+genome_fasta: "../Genomes/TAIR10/TAIR10_nuclear.fasta"
+avg_read_length: "50"
+
+
 
 
 

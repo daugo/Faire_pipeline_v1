@@ -3,11 +3,11 @@
 ---
 input:
   #Treatment file must be in BAM format
-  treatment: "../Pipeline_v1/FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bam"
+  treatment: FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bam
   #Control file must be in BAM  format
-  control: "../Pipeline_v1/FAIRE-WT-A-th_GCCAAT_L004_nuclear_sorted.bam"
+  control: FAIRE-WT-A-th_GCCAAT_L004_nuclear_sorted.bam
   #Genome fasta file (to extract Chromosomes names and lengths)
-  genome_fasta: "../Pipeline_v1/Genomes/TAIR10/TAIR10_nuclear.fasta"
+  genome_fasta: "Genomes/TAIR10/TAIR10_nuclear.fasta"
 output:
   #Output files basename to be used
   output_basename: "CSAR_try"
