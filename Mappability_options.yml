@@ -1,7 +1,0 @@
-#YAML
-#Mappability.yml
----
-genome_fasta: "Genomes/TAIR10/TAIR10_nuclear.fasta"
-avg_read_length: "50"
-frag_len: "300"
-bin_size: "50"
