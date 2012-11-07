@@ -1,0 +1,35 @@
+#YAML
+#csar_options.yml
+---
+input:
+  #Treatment file must be in BAM format
+  treatment: FAIRE-3-AT-A-th_ACAGTG_L003_nuclear_sorted.bam
+  #Control file must be in BAM  format
+  control: FAIRE-WT-A-th_GCCAAT_L004_nuclear_sorted.bam
+  #Genome fasta file (to extract Chromosomes names and lengths)
+  genome_fasta: "Genomes/TAIR10/TAIR10_nuclear.fasta"
+output:
+  #Output files basename to be used
+  output_basename: "CSAR_try"
+parameters:
+  #Integer value. Number of hits will be reported by number of hits per norm-nucleotides
+  norm: "3e10"
+  #Integer corresponding to the desired length of the extended reads (bp)
+  fragment_length: "300"
+  #Numeric value. Read-enriched regions are calculated as genomic regions withscore values bigger than t
+  min_score: "20"
+  #Integer value. The maximum gap allowed between regions. Regions that areless than g bps away will be merged.
+  max_gap: "1000"
+  #Use a score based on the poisson distribution ("Poisson") or in the ratio ("Ratio")
+  test: "Poisson"
+  #Integer value. Number of permutations
+  no_permutations: "10"
+  #Numeric value with the desired FDR control
+  desired_FDR: "0.05"
+
+other_options:
+  #Number of decimal digits used to report the score values
+  no_digits: "4"
+  #To be memory efﬁcient, CSAR will only upload to the RAM memory fragmentssof length times
+  times_ram_call: "4000"
+  times_ram_per: "4000"

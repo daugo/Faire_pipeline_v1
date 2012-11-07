@@ -1,0 +1,15 @@
+#YAML try 
+#fastqc_config_file.yml
+---
+fastqc_dir : /home/daugo/Downloads/FastQC
+in_files: 
+  - /home/daugo/Documents/sample_files_ligth/FAIRE-3-AT-A-th_ACAGTG_L003_mitochlorounaligned_1.fastq_head1000
+  - /home/daugo/Documents/sample_files_ligth/FAIRE-3-AT-A-th_ACAGTG_L003_mitochlorounaligned_2.fastq_head1000
+outdir: ~/Documents
+threads: 2
+format: fastq
+casava: ~
+noextract: ~
+no_group: ~
+contaminats: ~
+kmers: ~

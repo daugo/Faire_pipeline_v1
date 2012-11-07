@@ -5,16 +5,16 @@ use strict;
 use YAML::Tiny;
 use File::Basename;
 use Data::Dumper;
-use change_format_fork;
-#my @files;
 
+use change_format_fork;
 use macs_job;
 use csar_job;
+use create_db;
 
-#fill @files using yaml file
-my $config_file = YAML::Tiny->new;
 # Open the config
-$config_file= YAML::Tiny->read("conect_script_global_try2.yml") or die "Cannot read global config file\n";
+my $general_yml_file = shift @ARGV;
+my $config_file = YAML::Tiny->new;
+$config_file= YAML::Tiny->read("$general_yml_file") or die "Cannot read global config file\n";
 
 #==============Manage Fastx-toolkit and save file group features=============================================
 my $count = 0;
@@ -37,7 +37,7 @@ foreach my $yml_file_ref (@{$config_file->[0]->{'fastx_toolkit_files'}}) {
 foreach my $yml_file (@{$config_file->[0]->{'bowtie-build'}}) {
 	if ($yml_file) {
 		warn "bowtie-build\tUSING FILE: $yml_file...\n";
-		#!system "perl bowtie_build.pl $yml_file" or die "Cannot execute bowtie-build.pl: $!";
+		!system "perl bowtie_build.pl $yml_file" or die "Cannot execute bowtie-build.pl: $!";
 	}
 	else {
 		warn "bowtie-build execution canceled : no fasta file available for this part";
@@ -279,7 +279,7 @@ foreach my $program_yml_tag (keys %{$config_file->[0]->{'peak_callers'}}) {
 		chomp;
 		my $line = $_;
 		foreach my $nuclear_bowtie_yml (keys %nuclearBowtie_CorT) {
-			#print "HERE:$nuclear_bowtie_yml\t$nuclearBowtie_CorT{$nuclear_bowtie_yml}\n";
+			
 			my $bowtie_build_config_file = YAML::Tiny->read($nuclear_bowtie_yml);
 			my $out_bowtie_basemane = $bowtie_build_config_file->[0]->{'0_General_system'}->{'sys'}->[5]->{'outfile_base_name'};
 			my $bed_file = $out_bowtie_basemane."_sorted.bed";
@@ -324,13 +324,63 @@ foreach my $peak_caller_name (@peak_caller_ymls) {
 }
 #===================================================================================
 
+#============Peak-callers JOBS==============================
 
+#======Execute MACS JOB===============
 my $macs_peaks_bed_fl = macs_job::Macs_Job($config_file->[0]->{'peak_callers'}->{'macs_config_file'});
-print "PEAKS_FILES:($macs_peaks_bed_fl)";
-#my $csar_peaks_bed_fl = csar_job::Csar_Job($config_file->[0]->{'peak_callers'}->{'csar_config_file'});
-#TODO: Mappability.pl integration
+
+#======Execute CSAR JOB===============
+my $csar_peaks_bed_fl = csar_job::Csar_Job($config_file->[0]->{'peak_callers'}->{'csar_config_file'});
+
+
+#======Generate Mappability - GC and N files for MOSAICS======================
+chdir "Mappability_data" or die "$!"; #change to Mappability_data Directory
+my $pwd_backup= $ENV{'PWD'}; #save original $ENV{'PWD'};
+$ENV{'PWD'} = $ENV{'PWD'}."/Mappability_data"; #change $ENV{'PWD'} to Mappability_data Mappability.pl require this.
+#Execute Mappability.pl
+!system "perl Mappability.pl ../$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannot execute Mappability.pl: $!";
+
+#=====Write Mappability-GC-M files into mosaics config file=====================
+my @out_mappability_gc_files;
+foreach (glob "MOSAICS_REQUIRE_FILES/*") {
+	my $add_parent_folder = 'Mappability_data/'.$_;
+	push (@out_mappability_gc_files,$add_parent_folder);
+}
+
+my $map_file; my $gc_file; my $n_file;
+foreach (@out_mappability_gc_files) {
+    ($map_file) = $_ =~ /^(.+whole_map.+)$/ if ($_ =~ /whole_map/);
+    ($gc_file) = $_ =~ /^(.+whole_GC.+)$/ if ($_=~ /whole_GC/);
+    ($n_file) = $_ =~ /^(.+whole_N.+)$/ if ($_ =~ /whole_N/);
+}
+$ENV{'PWD'} = $pwd_backup;
+chdir "$ENV{'PWD'}" or die "$!";
+
+open IN_MOSAICS_YML, '<',"$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannot read: $!";
+open OUT_MOSAICS_YML, '>',"$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}.mod" or die "Cannot write: $!";
+while (<IN_MOSAICS_YML>) {
+	chomp;
+	my $line = $_;
+	$line =~ s/(mappability_file:).+$/$1 $map_file/;
+	$line =~ s/(gc_file:).+$/$1 $gc_file/;
+	$line =~ s/(n_file:).+$/$1 $n_file/;
+	print OUT_MOSAICS_YML "$line\n";
+}
+unlink "$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannot remove file: $!";
+rename ("$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}.mod","$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}") or die "Cannot rename file: $!";
+
+#=====Execute MOSAICS JOB============
 !system "perl MOSAICS.pl $config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannort execute MOSAICS.pl: $!";
 
-#print "PEAKS_FILES:($macs_peaks_bed_fl,$csar_peaks_bed_fl)\n";
+
+#==================================================================
+
+#=========Create Database/Import DB Schema=========================
+warn "Importing Database Squema...";
+create_db::Load_DB_Schema("$config_file->[0]->{'peak_annotation_config_file'}","DatabaseSchema/Faire_DB_squema.sql");
+warn "Done\n";
+#===================================================================
+
+
 
 

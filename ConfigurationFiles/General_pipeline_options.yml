@@ -1,0 +1,30 @@
+#YAML
+#conect_script_global.yml
+---
+fastx_toolkit_files:
+  #You have to provide one fastx_toolkit_file per fastqc file you have
+  #Aditionally you must write wich file corresponds to <treatment> or <control>(optional) and enumerate it to meet with the label of its corresponding mate file
+  #Follow by underscore (_) you must provide information telling if is a <single> read file or a <mate> file.
+  #Number it with the corresponding mate 1 or 2 or just leave it without any number if is a <single> file or if it is a <mate> file that contains the two mates
+  - ConfigurationFiles/fastx-toolkit_config_file_try1.yml: treatment_1
+  - ConfigurationFiles/fastx-toolkit_config_file_try2.yml: treatment_2
+  - ConfigurationFiles/fastx-toolkit_config_file_try3.yml: control_1
+  - ConfigurationFiles/fastx-toolkit_config_file_try4.yml: control_2
+bowtie-build:
+  - ConfigurationFiles/bowtie_build_config_file_mitochloro.yml
+  - ConfigurationFiles/bowtie_build_config_file_nuclear.yml
+bowtie-organelle:
+  - ConfigurationFiles/bowtie_config_file_mitochloro_treatment.yml: treatment
+  - ConfigurationFiles/bowtie_config_file_mitochloro_control.yml: control
+bowtie-nuclear:
+  - ConfigurationFiles/bowtie_config_file_nuclear_control.yml : control
+  - ConfigurationFiles/bowtie_config_file_nuclear_treatment.yml: treatment
+format-change-processing:
+  - erase_intermediate_mapped_files : check
+  #remove sam mapping files, keeping just the bam_sorted and bed files
+  - erase_sam_files : check
+peak_callers:
+  macs_config_file: ConfigurationFiles/macs_options.yml
+  csar_config_file: ConfigurationFiles/csar_options.yml
+  mosaics_config_file: ConfigurationFiles/mosaics_options.yml
+peak_annotation_config_file: ConfigurationFiles/bed_summitCom_filters.yml
