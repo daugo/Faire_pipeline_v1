@@ -37,7 +37,7 @@ foreach my $yml_file_ref (@{$config_file->[0]->{'fastx_toolkit_files'}}) {
 foreach my $yml_file (@{$config_file->[0]->{'bowtie-build'}}) {
 	if ($yml_file) {
 		warn "bowtie-build\tUSING FILE: $yml_file...\n";
-		!system "perl bowtie_build.pl $yml_file" or die "Cannot execute bowtie-build.pl: $!";
+		#!system "perl bowtie_build.pl $yml_file" or die "Cannot execute bowtie-build.pl: $!";
 	}
 	else {
 		warn "bowtie-build execution canceled : no fasta file available for this part";
@@ -280,8 +280,8 @@ foreach my $program_yml_tag (keys %{$config_file->[0]->{'peak_callers'}}) {
 		my $line = $_;
 		foreach my $nuclear_bowtie_yml (keys %nuclearBowtie_CorT) {
 			
-			my $bowtie_build_config_file = YAML::Tiny->read($nuclear_bowtie_yml);
-			my $out_bowtie_basemane = $bowtie_build_config_file->[0]->{'0_General_system'}->{'sys'}->[5]->{'outfile_base_name'};
+			my $bowtie_nuclear_config_file = YAML::Tiny->read($nuclear_bowtie_yml);
+			my $out_bowtie_basemane = $bowtie_nuclear_config_file->[0]->{'0_General_system'}->{'sys'}->[5]->{'outfile_base_name'};
 			my $bed_file = $out_bowtie_basemane."_sorted.bed";
 			my $bam_file = $out_bowtie_basemane."_sorted.bam";
 
@@ -338,7 +338,7 @@ chdir "Mappability_data" or die "$!"; #change to Mappability_data Directory
 my $pwd_backup= $ENV{'PWD'}; #save original $ENV{'PWD'};
 $ENV{'PWD'} = $ENV{'PWD'}."/Mappability_data"; #change $ENV{'PWD'} to Mappability_data Mappability.pl require this.
 #Execute Mappability.pl
-!system "perl Mappability.pl ../$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannot execute Mappability.pl: $!";
+#!system "perl Mappability.pl ../$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannot execute Mappability.pl: $!";
 
 #=====Write Mappability-GC-M files into mosaics config file=====================
 my @out_mappability_gc_files;
@@ -370,16 +370,80 @@ unlink "$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Ca
 rename ("$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}.mod","$config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}") or die "Cannot rename file: $!";
 
 #=====Execute MOSAICS JOB============
-!system "perl MOSAICS.pl $config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannort execute MOSAICS.pl: $!";
+#!system "perl MOSAICS.pl $config_file->[0]->{'peak_callers'}->{'mosaics_config_file'}" or die "Cannort execute MOSAICS.pl: $!";
 
 
 #==================================================================
 
 #=========Create Database/Import DB Schema=========================
 warn "Importing Database Squema...";
-create_db::Load_DB_Schema("$config_file->[0]->{'peak_annotation_config_file'}","DatabaseSchema/Faire_DB_squema.sql");
+#create_db::Load_DB_Schema("$config_file->[0]->{'peak_annotation_config_file'}","DatabaseSchema/Faire_DB_squema.sql");
 warn "Done\n";
 #===================================================================
+
+
+#=========Save Annotation info into the DB=========================
+warn "Saving annotation information into the Database...";
+!system "perl GFF32MySQL.pl $config_file->[0]->{'peak_annotation_config_file'}" or die "Cannot execute GFF32MySQL.pl: $!";
+warn "Done\n";
+
+#==================================================================
+
+
+#=========Save Peaks info into DB =================================
+warn "Saving Peaks info into Database...";
+!system "perl bed2MySQL.pl" or die "Cannot execute bed2MySQL.pl: $!";
+warn "Done\n";
+#=================================================================
+
+#=========Peak Annotation / Graphics Generation =================================
+my $bam_file;
+foreach my $nuclear_bowtie_yml (keys %nuclearBowtie_CorT) {
+	if ($nuclearBowtie_CorT{$nuclear_bowtie_yml} =~ /treatment/) {
+		my $bowtie_nuclear_config_file = YAML::Tiny->read($nuclear_bowtie_yml);
+		my $out_bowtie_basemane = $bowtie_nuclear_config_file->[0]->{'0_General_system'}->{'sys'}->[5]->{'outfile_base_name'};
+		$bam_file = $out_bowtie_basemane."_sorted.bam";
+	}
+}
+open BED_ANALYSIS_YML,'<',"$config_file->[0]->{'peak_annotation_config_file'}" or die "Cannot read $config_file->[0]->{'peak_annotation_config_file'}: $!";
+open BED_ANALYSIS_YML_OUT,'<',"$config_file->[0]->{'peak_annotation_config_file'}.mod" or die "Cannot write $config_file->[0]->{'peak_annotation_config_file'}.mod: $!";
+while (<BED_ANALYSIS_YML>) {
+	chomp;
+	my $line = $_;
+	$line =~ s/^(bam_file_path:).+$/$1 $bam_file/ if ($line =~ /^bam_file_path:/);
+	print BED_ANALYSIS_YML_OUT "$line";
+}
+unlink "$config_file->[0]->{'peak_annotation_config_file'}" or die "Cannot remove file: $!";
+rename ("$config_file->[0]->{'peak_annotation_config_file'}.mod","$config_file->[0]->{'peak_annotation_config_file'}") or die "Cannot rename file: $!";
+
+warn "PEAK ANNOTATION BEGINGS...\n";
+!system "perl bed_analysis.pl $config_file->[0]->{'peak_annotation_config_file'}" or die "Cannot execute bed_analysis.pl: $!";
+warn "PEAK ANNOTATION DONE\n";
+
+#================================================================================
+
+#===========================Save GO Annotation ==================================
+warn "Saving GO Annotation info into the Database...";
+!system "perl GOAnnotation2MySQL.pl GOAnnotation_options.yml" or die "Cannot execute GOAnnotation2MySQL.pl: $!";
+warn "Saving GO Annotation Done\n";
+#================================================================================
+
+#===========================GO Enrichment Analysis JOBS =========================
+warn "Executing topGO jobs and saving information into the database";
+!system "perl Enrichment_GO_Analysis.pl GO_EnrichmentTopGO_options.yml" or die "Cannot execute Enrichment_GO_Analysis.pl";
+warn "topGO jobs and database storing DONE\n";
+#================================================================================
+
+#===========================Meme Analysis =======================================
+warn "Executing Meme Analyses (This process may take several time(days))";
+!system "perl Meme_Analysis.pl MotifAnalysis_options.yml" or die "Cannot execute Meme_Analysis.pl: $!";
+warn "Meme Analysis DONE\n";
+#================================================================================
+
+
+warn "PIPELINE DONE!!\n";
+
+
 
 
 
